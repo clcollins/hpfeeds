@@ -1,0 +1,67 @@
+---
+  - hosts: all
+
+    tasks:
+      - name: Gather | print os info
+        debug:
+          msg: "{{ ansible_distribution }}-{{ ansible_distribution_major_version}}"
+
+      - name: Gather | os info
+        include_vars: "{{ item }}"
+        with_first_found:
+          - "{{ ansible_distribution }}-{{ ansible_distribution_major_version}}.yml"
+          - "{{ ansible_distribution }}.yml"
+        tags: vars
+
+      - name: Gather | default info
+        include_vars:
+          file: default.yml
+        tags: vars
+
+      - name: HPFeeds | install dependency packages
+        package:
+          name: "{{ item }}"
+        with_items: "{{ pkgs }}"
+
+      - name: HPFeeds | install os-specific dependency packages
+        package:
+          name: "{{ item }}"
+        with_items: "{{ pkgs_osspec }}"
+
+      - name: HPFeeds | clone hpfeeds
+        git:
+          repo: "{{ hpfeeds_repo }}"
+          version: "{{ hpfeeds_version }}"
+          dest: "{{ hpfeeds_dir }}"
+          accept_hostkey: yes
+          depth: 1
+
+      - name: HPFeeds | install pip deps
+        pip:
+          name: "{{ item }}"
+          state: present
+          executable: "{{ pip_executable }}"
+        with_items: "{{ hpfeeds_pip_pkgs }}"
+
+      - name: HPFeeds | editable pip pkgs (evnet-dev)
+        pip:
+          name: "{{ item }}"
+          state: present
+          executable: "{{ pip_executable }}"
+        with_items: "{{ hpfeeds_pip_pkgs_editable }}"
+
+      # Then pip install local hpfeedsdir
+
+      - name: HPFeeds | supervisord daemon config
+        copy:
+          src: hpfeeds-broker.ini
+          dest: "{{ supervisord_confdir }}/hpfeeds-broker.ini"
+          owner: root
+          group: root
+          mode: 0755
+
+      - name: HPFeeds | logdir
+        file:
+          path: "{{ chn_logdir }}"
+          state: directory
+          mode: 0755

@@ -1,0 +1,21 @@
+FROM ubuntu:17.10
+
+LABEL maintainer Chris Collins <collins.christopher@gmail.com>
+LABEL name "chn-hpfeeds"
+LABEL version "0.1"
+LABEL release "1"
+LABEL summary "Community Honey Network hpfeeds broker"
+LABEL description "hpfeeds is a lightweight authenticated publish-subscribe protocol that supports arbitrary binary payloads."
+LABEL authoritative-source-url "https://github.com/CommunityHoneyNetwork/hpfeeds"
+LABEL changelog-url "https://github.com/CommunityHoneyNetwork/hpfeeds/commits/master"
+
+ENV playbook "hpfeeds.yml"
+
+RUN apt-get update \
+      && apt-get install -y ansible
+
+RUN echo "localhost ansible_connection=local" >> /etc/ansible/hosts
+ADD . /opt/
+RUN ansible-playbook /opt/${playbook}
+
+ENTRYPOINT ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord.conf"]

@@ -1,0 +1,8 @@
+---
+  pkgs_osspec:
+    - python2-devel
+    - python2-pip
+    - libev
+    - libev-devel
+
+  supervisord_confdir: /etc/supervisord.d

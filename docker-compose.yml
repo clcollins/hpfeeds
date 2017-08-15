@@ -5,12 +5,8 @@ services:
       context: .
       dockerfile: Dockerfile-centos
     image: hpfeeds:centos
-    ports:
-      - "127.0.0.1:10000:10000"
   ubuntu:
     build:
       context: .
       dockerfile: Dockerfile-ubuntu
     image: hpfeeds:ubuntu
-    ports:
-      - "127.0.0.1:10000:10000"

@@ -67,7 +67,7 @@
       - name: HPFeeds | copy runit runfile
         copy:
           src: hpfeeds-broker.run
-          dest: /etc/service/hpfeeds-broker.run"
+          dest: /etc/service/hpfeeds/run
           owner: root
           group: root
           mode: 0755

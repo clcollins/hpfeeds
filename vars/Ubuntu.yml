@@ -4,7 +4,4 @@
     - python-pip
     - libev4
     - libev-dev
-
-  supervisord_confdir: /etc/supervisor/conf.d
-
-
+    - runit

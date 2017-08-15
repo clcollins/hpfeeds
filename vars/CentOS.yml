@@ -5,4 +5,4 @@
     - libev
     - libev-devel
 
-  supervisord_confdir: /etc/supervisord.d
+  runit_rpm_src: https://github.com/CommunityHoneyNetwork/rpmbuilder-runit/releases/download/2.1.2-1/runit-2.1.2-1.el7.centos.x86_64.rpm

@@ -18,4 +18,6 @@ RUN echo "localhost ansible_connection=local" >> /etc/ansible/hosts
 ADD . /opt/
 RUN ansible-playbook /opt/${playbook}
 
-ENTRYPOINT ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord.conf"]
+EXPOSE 10000
+
+ENTRYPOINT ["/usr/bin/runsvdir", "-P", "/etc/service"]

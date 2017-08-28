@@ -1,0 +1,23 @@
+#!/bin/bash
+
+source {{ sysconfig_dir }}/hpfeeds
+
+if [[ -z $MONGOIP ]]
+then
+  MONGOIP='127.0.0.1'
+fi
+
+if [[ -z $MONGOPORT ]]
+then
+  MONGOPORT=27017
+fi
+
+# We can't really do anything but find/replace, or we have to fork upstream
+sed -i "s/MONGOIP = .*/MONGOIP = '${MONGOIP}'/" /opt/hpfeeds/broker/feedbroker.py
+sed -i "s/MONGOPORT = .*/MONGOPORT = ${MONGOPORT}/" /opt/hpfeeds/broker/feedbroker.py
+
+echo "Starting hpfeeds..."
+echo "MONGOPIP = ${MONGOIP}"
+echo "MONGOPPORT = ${MONGOPORT}"
+
+exec /usr/bin/env python /opt/hpfeeds/broker/feedbroker.py

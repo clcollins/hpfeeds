@@ -50,7 +50,13 @@
           executable: "{{ pip_executable }}"
         with_items: "{{ hpfeeds_pip_pkgs_editable }}"
 
-      # Then pip install local hpfeedsdir
+      # Then pip install local hpfeedsdir?
+
+      - name: HPFeeds | copy sysconfig file
+        copy:
+          src: hpfeeds.sysconfig
+          dest: "{{ sysconfig_dir }}/hpfeeds"
+          mode: 0644
 
       - name: HPFeeds | install Runit
         yum:
@@ -65,8 +71,8 @@
           mode: 0755
 
       - name: HPFeeds | copy runit runfile
-        copy:
-          src: hpfeeds-broker.run
+        template:
+          src: hpfeeds-broker.run.j2
           dest: /etc/service/hpfeeds/run
           owner: root
           group: root

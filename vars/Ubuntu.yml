@@ -5,3 +5,5 @@
     - libev4
     - libev-dev
     - runit
+
+  sysconfig_dir: /etc/default

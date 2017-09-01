@@ -25,7 +25,12 @@ rec = {
     "subscribe":subscribe
 }
 
-client = pymongo.MongoClient()
+try:
+    client = pymongo.MongoClient()
+except:
+    print("Error connecting to Mongo database")
+    sys.exit(1)
+
 res = client.hpfeeds.auth_key.update({"identifier": ident}, {"$set": rec}, upsert=True)
 client.fsync()
 client.close()

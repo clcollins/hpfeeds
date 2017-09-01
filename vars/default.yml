@@ -9,11 +9,6 @@
 
   chn_logdir: /var/log/mhn
 
-  hpfeeds_repo: https://github.com/threatstream/hpfeeds
-  hpfeeds_dir: /opt/hpfeeds
-
-  hpfeeds_version: de1ab9beafa1ce492685a592f49b240402cc30c0
-
   hpfeeds_pip_pkgs:
     - cffi
     - pyopenssl

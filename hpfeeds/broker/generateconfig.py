@@ -16,7 +16,7 @@ def generate_config():
     parser_description = 'This is a help script to generate a working config.py file from the config template.'
     parser = argparse.ArgumentParser(parser_description)
 
-    subparsers = argparse.add_subparsers(help='commands')
+    subparsers = parser.add_subparsers(help='commands')
 
     parser_generate = subparsers.add_parser('generate',
                                             help='Generate a config.py and prompt for options')

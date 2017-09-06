@@ -1,9 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
 
-import gevent, gevent.server, gevent.monkey
-gevent.monkey.patch_all()
-
 import sys
 import os
 import logging
@@ -16,7 +13,12 @@ import proto
 import utils
 from utils import Disconnect, BadClient
 
+import gevent, gevent.server, gevent.monkey
+
+gevent.monkey.patch_all()
+
 log = logging.getLogger("broker")
+
 
 class Connection(object):
     def __init__(self, sock, addr, srv):
@@ -28,6 +30,8 @@ class Connection(object):
         self.pubchans = []
         self.subchans = []
         self.active = True
+        self.authrand = None
+        self.statgreenlet = None
 
         self.stats = collections.defaultdict(lambda: 0)
 
@@ -40,7 +44,7 @@ class Connection(object):
             self.sock.sendall(data)
             self.stats['bytes_sent'] += len(data)
         except Exception as e:
-            #traceback.print_exc()
+            # traceback.print_exc()
             log.critical('Exception when writing to conn: {0}'.format(e))
         return
 
@@ -63,7 +67,8 @@ class Connection(object):
                 chan, payload = proto.split(data, 1)
 
                 if not self.may_publish(chan) or chan.endswith("..broker"):
-                    self.error("Authkey not allowed to publish here.", chan=chan)
+                    self.error("Authkey not allowed to publish here.",
+                               chan=chan)
                     continue
 
                 self.srv.do_publish(self, chan, payload)
@@ -73,10 +78,12 @@ class Connection(object):
                 chan = data
                 checkchan = chan
 
-                if chan.endswith('..broker'): checkchan = chan.rsplit('..broker', 1)[0]
+                if chan.endswith('..broker'):
+                    checkchan = chan.rsplit('..broker', 1)[0]
 
                 if not self.may_subscribe(checkchan):
-                    self.error("Authkey not allowed to subscribe here.", chan=chan)
+                    self.error("Authkey not allowed to subscribe here.",
+                               chan=chan)
                     continue
 
                 self.srv.do_subscribe(self, ident, chan)
@@ -86,7 +93,8 @@ class Connection(object):
                 self.do_unsubscribe(self, ident, chan)
 
             else:
-                self.error("Unknown message type.", opcode=opcode, length=len(data))
+                self.error("Unknown message type.", opcode=opcode,
+                           length=len(data))
                 raise BadClient()
 
     def may_publish(self, chan):
@@ -136,12 +144,13 @@ class Connection(object):
     def periodic_stats(self):
         while self.active:
             for i in range(config.STAT_TIME):
-                if not self.active: break
+                if not self.active:
+                    break
                 gevent.sleep(1)
             self.save_stats()
         log.debug("Statistics greenlet exiting for {0}".format(self.addr))
 
-    def log(self, msg, *args):
+    def log(msg, *args):
         log.info(msg.format(*args))
 
     def error(self, msg, *args, **context):
@@ -153,7 +162,8 @@ class Connection(object):
 
 class Server(object):
     def __init__(self):
-        self.listener = gevent.server.StreamServer((config.FBIP, config.FBPORT), self._newconn, **config.SSLOPTS)
+        self.listener = gevent.server.StreamServer(
+            (config.FBIP, config.FBPORT), self._newconn, **config.SSLOPTS)
         self.db = self.dbclass()
         self.connections = set()
         self.subscribermap = collections.defaultdict(list)
@@ -173,12 +183,14 @@ class Server(object):
         log.debug('Connection from {0}.'.format(addr))
         fc = self.connclass(sock, addr, self)
         self.connections.add(fc)
-        
-        try: fc.handle()
+
+        try:
+            fc.handle()
         except Disconnect:
             log.debug("Connection closed by {0}".format(addr))
         except BadClient:
-            log.warn('Connection ended because of bad client: {0}'.format(addr))
+            log.warn(
+                'Connection ended because of bad client: {0}'.format(addr))
 
         fc.active = False
 
@@ -190,26 +202,32 @@ class Server(object):
         del self.conn2chans[fc]
 
         self.connections.remove(fc)
-        try: sock.close()
-        except: pass
+        try:
+            sock.close()
+        except:
+            pass
 
     def do_publish(self, c, chan, data):
-        log.debug('publish to {0} by {1} ak {2} addr {3}'.format(chan, c.uid, c.ak, c.addr))
+        log.debug(
+            'publish to {0} by {1} ak {2} addr {3}'.format(chan, c.uid, c.ak,
+                                                           c.addr))
         try:
             for c2 in self.receivers(chan, c, self.subscribermap[chan]):
                 c2.forward(c.ak, chan, data)
         except Exception as e:
             traceback.print_exc()
-        
+
     def do_subscribe(self, c, ident, chan):
-        log.debug('broker subscribe to {0} by {1}@{2}'.format(chan, ident, c.addr))
+        log.debug(
+            'broker subscribe to {0} by {1}@{2}'.format(chan, ident, c.addr))
         self.subscribermap[chan].append(c)
         self.conn2chans[c].append(chan)
         if not chan.endswith('..broker'):
             self._brokerchan(c, chan, ident, 'join')
-    
+
     def do_unsubscribe(self, c, ident, chan):
-        log.debug('broker unsubscribe to {0} by {1}@{2}'.format(chan, ident, c.addr))
+        log.debug(
+            'broker unsubscribe to {0} by {1}@{2}'.format(chan, ident, c.addr))
         self.subscribermap[chan].remove(c)
         self.conn2chans[c].remove(chan)
         if not chan.endswith('..broker'):
@@ -239,7 +257,8 @@ class Server(object):
         return self.db.get_authkey(identifier)
 
     def receivers(self, chan, conn, subscribed_conns):
-        if not subscribed_conns: return
+        if not subscribed_conns:
+            return
 
         # this is plain hpfeeds mode, no graph
         # all subscribed connections allowed to receive by default
@@ -254,6 +273,9 @@ def main():
     s.serve_forever()
     return 0
 
+
 if __name__ == '__main__':
-    try: sys.exit(main())
-    except KeyboardInterrupt: pass
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        pass

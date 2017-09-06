@@ -1,6 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
 
+MONGODB_HOST = '{{MONGODB_HOST}}'
+MONGODB_PORT = {{MONGODB_PORT}}
+
 # debug, turns on debug logging output
 DEBUG = True
 
@@ -22,6 +25,3 @@ DBPATH = "db.sqlite3"
 
 # how often to save connection stats
 STAT_TIME = 60
-
-MONGODB_HOST = 'mongodb'
-MONGODB_PORT = 27017

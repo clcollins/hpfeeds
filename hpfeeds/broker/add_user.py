@@ -3,6 +3,9 @@
 import pymongo
 import sys
 
+import config
+
+
 def handle_list(arg):
     if arg:
         return arg.split(",")
@@ -10,7 +13,8 @@ def handle_list(arg):
         return []
 
 if len(sys.argv) < 5:
-    print >> sys.stderr, "Usage: %s <ident> <secret> <publish> <subscribe>"%sys.argv[0]
+    print >> sys.stderr, "Usage: %s <ident> <secret> <publish> <subscribe>" % \
+                         sys.argv[0]
     sys.exit(1)
 
 ident = sys.argv[1]
@@ -22,16 +26,17 @@ rec = {
     "identifier": ident,
     "secret": secret,
     "publish": publish,
-    "subscribe":subscribe
+    "subscribe": subscribe
 }
 
-client = pymongo.MongoClient()
-res = client.hpfeeds.auth_key.update({"identifier": ident}, {"$set": rec}, upsert=True)
+client = pymongo.MongoClient(host=config.MONGODB_HOST,
+                             port=config.MONGODB_PORT)
+res = client.hpfeeds.auth_key.update({"identifier": ident}, {"$set": rec},
+                                     upsert=True)
 client.fsync()
 client.close()
 
 if res['updatedExisting']:
-    print "updated %s"%rec
+    print "updated %s" % rec
 else:
-    print "inserted %s"%(rec)
-
+    print "inserted %s" % rec

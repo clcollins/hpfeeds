@@ -1,6 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
 
+MONGODB_HOST = '{{MONGODB_HOST}}'
+MONGODB_PORT = {{MONGODB_PORT}}
+
 # debug, turns on debug logging output
 DEBUG = True
 

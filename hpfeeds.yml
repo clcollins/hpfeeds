@@ -28,14 +28,6 @@
           name: "{{ item }}"
         with_items: "{{ pkgs_osspec }}"
 
-      - name: HPFeeds | clone hpfeeds
-        git:
-          repo: "{{ hpfeeds_repo }}"
-          version: "{{ hpfeeds_version }}"
-          dest: "{{ hpfeeds_dir }}"
-          accept_hostkey: yes
-          depth: 1
-
       - name: HPFeeds | install pip deps
         pip:
           name: "{{ item }}"

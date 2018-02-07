@@ -15,7 +15,7 @@
     - pymongo
 
   hpfeeds_pip_pkgs_editable:
-    - git+https://github.com/CommunityHoneyNetwork/pyev.git#subdirectory=pyev-0.9.0
+    - git+https://github.com/CommunityHoneyNetwork/pyev.git#egg=pyev&subdirectory=pyev-0.9.0
     - git+https://github.com/CommunityHoneyNetwork/evnet.git#egg=evnet-dev
 
   broker_dir: /opt/hpfeeds/broker
